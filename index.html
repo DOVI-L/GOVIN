@@ -2,37 +2,74 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>הדפדפן הווירטואלי שלי (Python)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>דפדפן וירטואלי - מחובר לשרת</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; background: #f0f2f5; }
-        .box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        input { width: 70%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
-        button { padding: 10px 20px; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 4px; }
-        #display { margin-top: 20px; border: 2px solid #ddd; height: 500px; overflow: auto; background: #fff; padding: 10px; }
+        body { font-family: system-ui, -apple-system, sans-serif; padding: 20px; background-color: #f4f7f6; }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .header { text-align: center; margin-bottom: 30px; }
+        .input-group { display: flex; gap: 10px; margin-bottom: 20px; }
+        input { flex: 1; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; outline: none; transition: border-color 0.3s; }
+        input:focus { border-color: #28a745; }
+        button { padding: 12px 25px; background: #28a745; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; }
+        button:hover { background: #218838; }
+        #viewer { border: 2px solid #eee; border-radius: 8px; height: 500px; overflow: auto; background: #fff; padding: 15px; margin-top: 10px; }
+        .status-badge { display: inline-block; padding: 5px 12px; background: #e8f5e9; color: #2e7d32; border-radius: 20px; font-size: 13px; margin-bottom: 15px; }
     </style>
 </head>
 <body>
-    <div class="box">
-        <h1>דפדפן מבוסס שרת פייתון</h1>
-        <input type="text" id="urlInput" placeholder="הכנס כתובת (למשל: https://example.com)">
-        <button onclick="browse()">גלוש</button>
-        <div id="display">התוכן יופיע כאן...</div>
+    <div class="container">
+        <div class="header">
+            <h1>הדפדפן שלי 🌐</h1>
+            <div class="status-badge">מחובר לשרת: dovi.pythonanywhere.com</div>
+        </div>
+        
+        <div class="input-group">
+            <input type="text" id="urlInput" placeholder="הכנס כתובת (למשל: https://www.wikipedia.org)">
+            <button onclick="loadSite()">גלוש</button>
+        </div>
+        
+        <div id="viewer">הזן כתובת אתר ולחץ על "גלוש" כדי לטעון תוכן דרך שרת ה-Proxy...</div>
     </div>
 
     <script>
-        async function browse() {
-            const url = document.getElementById('urlInput').value;
-            const display = document.getElementById('display');
-            display.innerHTML = "טוען נתונים מהשרת...";
+        async function loadSite() {
+            const urlInput = document.getElementById('urlInput').value;
+            const viewer = document.getElementById('viewer');
+            
+            if (!urlInput) {
+                alert("נא להזין כתובת אתר!");
+                return;
+            }
+
+            // מוודא שהכתובת מתחילה ב-http
+            let targetUrl = urlInput;
+            if (!targetUrl.startsWith('http')) {
+                targetUrl = 'https://' + targetUrl;
+            }
+
+            viewer.innerHTML = "<b>טוען תוכן מהשרת...</b>";
 
             try {
-                // חשוב: החלף את הכתובת למטה בכתובת שתקבל מ-Render
-                const serverUrl = `https://your-service-name.onrender.com/fetch?url=${encodeURIComponent(url)}`;
-                const response = await fetch(serverUrl);
-                const data = await response.text();
-                display.innerHTML = data;
-            } catch (err) {
-                display.innerHTML = "שגיאה: ודא שהשרת פועל והכתובת נכונה.";
+                // הכתובת המדויקת של השרת שלך ב-PythonAnywhere
+                const proxyUrl = 'https://dovi.pythonanywhere.com/fetch?url=';
+                const response = await fetch(proxyUrl + encodeURIComponent(targetUrl));
+                
+                if (!response.ok) {
+                    throw new Error('השרת החזיר שגיאה. ודא שהכתובת תקינה.');
+                }
+                
+                const htmlContent = await response.text();
+                
+                // ניקוי והצגת התוכן
+                viewer.innerHTML = htmlContent;
+                
+            } catch (error) {
+                viewer.innerHTML = `<div style="color:red; font-weight:bold;">
+                    שגיאה: לא ניתן לטעון את האתר.<br>
+                    ${error.message}
+                </div>`;
+                console.error('Error fetching site:', error);
             }
         }
     </script>
