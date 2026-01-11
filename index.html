@@ -2,38 +2,39 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>דף בדיקה לגיט</title>
+    <title>הדפדפן הווירטואלי שלי (Python)</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .container {
-            background: white;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-        h1 { color: #333; }
-        p { color: #666; }
-        .status {
-            color: green;
-            font-weight: bold;
-        }
+        body { font-family: sans-serif; padding: 20px; background: #f0f2f5; }
+        .box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        input { width: 70%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        button { padding: 10px 20px; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 4px; }
+        #display { margin-top: 20px; border: 2px solid #ddd; height: 500px; overflow: auto; background: #fff; padding: 10px; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>הבדיקה הצליחה! 🚀</h1>
-        <p>דף האינטרנט פועל כראוי.</p>
-        <p class="status">סטטוס: מחובר ל-GitHub</p>
+    <div class="box">
+        <h1>דפדפן מבוסס שרת פייתון</h1>
+        <input type="text" id="urlInput" placeholder="הכנס כתובת (למשל: https://example.com)">
+        <button onclick="browse()">גלוש</button>
+        <div id="display">התוכן יופיע כאן...</div>
     </div>
+
+    <script>
+        async function browse() {
+            const url = document.getElementById('urlInput').value;
+            const display = document.getElementById('display');
+            display.innerHTML = "טוען נתונים מהשרת...";
+
+            try {
+                // חשוב: החלף את הכתובת למטה בכתובת שתקבל מ-Render
+                const serverUrl = `https://your-service-name.onrender.com/fetch?url=${encodeURIComponent(url)}`;
+                const response = await fetch(serverUrl);
+                const data = await response.text();
+                display.innerHTML = data;
+            } catch (err) {
+                display.innerHTML = "שגיאה: ודא שהשרת פועל והכתובת נכונה.";
+            }
+        }
+    </script>
 </body>
 </html>
